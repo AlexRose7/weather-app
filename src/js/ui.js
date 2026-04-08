@@ -1,3 +1,11 @@
+function convertTemperature(temp, unit = 'C') {
+  if (unit === 'F') {
+    return Math.round((temp * 9) / 5 + 32);
+  }
+
+  return Math.round(temp);
+}
+
 function formatForecastTime(dateText) {
   return new Date(dateText).toLocaleTimeString('ru-RU', {
     hour: '2-digit',
@@ -5,7 +13,7 @@ function formatForecastTime(dateText) {
   });
 }
 
-export function renderWeather(data) {
+export function renderWeather(data, unit = 'C') {
   const weatherResult = document.querySelector('#weather-result');
   const cityName = document.querySelector('#city-name');
   const date = document.querySelector('#current-date');
@@ -32,7 +40,7 @@ export function renderWeather(data) {
     .replace(/^./, (symbol) => symbol.toUpperCase());
 
   // температура
-  temperature.textContent = `${Math.round(data.main.temp)}°C`;
+  temperature.textContent = `${convertTemperature(data.main.temp, unit)}°${unit}`;
 
   // описание
   description.textContent = data.weather[0].description;
@@ -40,7 +48,7 @@ export function renderWeather(data) {
   // детали
   humidity.textContent = `${data.main.humidity}%`;
   windSpeed.textContent = `${data.wind.speed} м/с`;
-  feelsLike.textContent = `${Math.round(data.main.feels_like)}°C`;
+  feelsLike.textContent = `${convertTemperature(data.main.feels_like, unit)}°${unit}`;
   pressure.textContent = `${data.main.pressure} hPa`;
 
   // иконка
@@ -56,7 +64,7 @@ export function renderWeather(data) {
   weatherResult.classList.remove('hidden');
 }
 
-export function renderForecast(items) {
+export function renderForecast(items, unit = 'C') {
   const forecastList = document.querySelector('#forecast-list');
 
   if (!forecastList) return;
@@ -66,11 +74,8 @@ export function renderForecast(items) {
     return;
   }
 
-  const now = new Date();
-
   forecastList.innerHTML = items
     .map((item, index) => {
-      const itemDate = new Date(item.dt * 1000);
       const isCurrent = index === 0;
 
       return `
@@ -81,7 +86,7 @@ export function renderForecast(items) {
             src="https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png"
             alt="${item.weather[0].description}"
           />
-          <p class="forecast-temp">${Math.round(item.main.temp)}°C</p>
+          <p class="forecast-temp">${convertTemperature(item.main.temp, unit)}°${unit}</p>
         </article>
       `;
     })
